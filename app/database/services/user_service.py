@@ -13,6 +13,9 @@ class UserService():
         return await self.user_repo.get(telegram_id)
     
     async def add_user(self, telegram_id: int, username: str) -> None:
+        user = await self.get_user(telegram_id)
+        if user:
+            return
         await self.user_repo.add(telegram_id, username)
         await self.session.commit()
     

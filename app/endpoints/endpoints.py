@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Request, Response, Query, Depends, HTTPException
+from fastapi import APIRouter, Request, Response, Query, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 import app.auth.jwt_processing as jwt_processing
@@ -79,7 +79,10 @@ async def question(
     question = await question_service.get_question(question_id)
     
     if not question:
-        raise HTTPException(status_code=404, detail='Question not found')
+        response = templates.TemplateResponse('page404.html', {
+            'request': request
+        })
+        return response
     
     if user_id:
         user = await user_service.get_user(user_id)
@@ -132,7 +135,6 @@ async def answer_question(
 
 @router.get('/auth/telegram/')
 async def auth_telegram(
-    request: Request, 
     telegram_data: TelegramAuthData = Query(),
     user_service: UserService = Depends(get_user_service),
     user_id: int = Depends(get_current_user_id) 
