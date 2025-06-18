@@ -8,8 +8,9 @@
 </head>
 <body>
     привет
-    {% if user_id %}
-        <p>привет твой id = {{ user_id }}</p>
+    {% if user %}
+        <p>привет твой id = {{ user.telegram_id }}</p>
+        <p>имя {{ user.username }}</p>
     {% else %}
         <p>привет гость</p>
 
