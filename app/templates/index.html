@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A MAIN PAGE</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
+</head>
+<body>
+    привет
+    {% if user_id %}
+        <p>привет твой id = {{ user_id }}</p>
+    {% else %}
+        <p>привет гость</p>
+
+        <script async src="https://telegram.org/js/telegram-widget.js?22" 
+            data-telegram-login="{{ bot_username }}" 
+            data-size="large" 
+            data-userpic="false"
+            data-auth-url="/auth/telegram" 
+            data-request-access="write">
+        </script>
+        
+    {% endif %}
+    
+    {% for question in questions %}
+        <p>{{ question.title }} {{ question.author_id }} {{ question.content }}</p>
+    {% endfor %}
+        
+    <script src="{{ url_for('static', path='js/index.js') }}"></script>
+</body>
+</html>
