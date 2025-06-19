@@ -4,7 +4,7 @@ from app.database.models import User
 from app.database.repositories.user_repo import UserRepository
 
 
-class UserService():
+class UserService:
     def __init__(self, user_repo: UserRepository, session: AsyncSession):
         self.user_repo = user_repo
         self.session = session

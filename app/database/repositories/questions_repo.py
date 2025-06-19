@@ -12,8 +12,8 @@ class QuestionsRepository:
     async def get(self, question_id: int) -> Question | None:
         return await self.session.get(Question, question_id) 
     
-    async def add(self, title: str, content: str, author_id: int) -> Question:
-        question = Question(title=title, content=content, author_id=author_id)
+    async def add(self, title: str, content: str, author_id: int, tags: list[str]) -> Question:
+        question = Question(title=title, content=content, author_id=author_id, tags=tags)
         self.session.add(question)
         await self.session.flush()
         return question
@@ -37,3 +37,8 @@ class QuestionsRepository:
         question = await self.get(question_id)
         question.answers_id.append(answer_id)
         flag_modified(question, 'answers_id')
+    
+    async def get_questions_count(self) -> int:
+        questions = await self.session.execute(select(Question))
+        questions = questions.scalars().all()
+        return len(questions)

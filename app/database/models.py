@@ -23,6 +23,7 @@ class Question(Base):
     author_id: Mapped[int]
     without_answer: Mapped[bool] = mapped_column(default=True)
     answers_id: Mapped[list[int]] = mapped_column(JSON, default=[])
+    tags: Mapped[list[str]] = mapped_column(JSON)
 
 class Answer(Base):
     __tablename__ = 'answers'
@@ -32,3 +33,9 @@ class Answer(Base):
     author_id: Mapped[int]
     question_id: Mapped[int]
     likes: Mapped[int] = mapped_column(default=0)
+
+class Tag(Base):
+    __tablename__ = 'tags'
+    
+    tag_name: Mapped[str] = mapped_column(primary_key=True)
+    questions_id: Mapped[list[int]] = mapped_column(JSON, default=[])

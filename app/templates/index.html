@@ -1,33 +1,212 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q&A MAIN PAGE</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
+    <title>Cleverly - Q&A Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .header-glass {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+        .question-card {
+            transition: all 0.3s ease;
+        }
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
 </head>
-<body>
-    привет
-    {% if user %}
-        <p>привет твой id = {{ user.telegram_id }}</p>
-        <p>имя {{ user.username }}</p>
-    {% else %}
-        <p>привет гость</p>
+<body class="min-h-screen flex flex-col">
+    <!-- Fixed Header -->
+    <header class="header-glass fixed top-4 left-4 right-4 mx-auto max-w-7xl rounded-xl shadow-md z-50 border border-gray-100 p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <h1 class="text-2xl font-bold gradient-text">Cleverly</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                {% if user %}
+                    <div class="flex items-center space-x-2">
+                        <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <span class="text-indigo-600 font-medium">{{ user.username|first|upper }}</span>
+                        </div>
+                        <span class="font-medium text-gray-700">{{ user.username }}</span>
+                    </div>
+                    <a href="/logout" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition">Выйти</a>
+                {% else %}
+                    <script async src="https://telegram.org/js/telegram-widget.js?22" 
+                        data-telegram-login="{{ bot_username }}" 
+                        data-size="large" 
+                        data-userpic="false"
+                        data-auth-url="/auth/telegram" 
+                        data-request-access="write">
+                    </script>
+                {% endif %}
+            </div>
+        </div>
+    </header>
 
-        <script async src="https://telegram.org/js/telegram-widget.js?22" 
-            data-telegram-login="{{ bot_username }}" 
-            data-size="large" 
-            data-userpic="false"
-            data-auth-url="/auth/telegram" 
-            data-request-access="write">
-        </script>
-        
-    {% endif %}
-    
-    {% for question in questions %}
-        <p>{{ question.title }} {{ question.author_id }} {{ question.content }}</p>
-    {% endfor %}
-        
-    <script src="{{ url_for('static', path='js/index.js') }}"></script>
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto max-w-7xl px-4 pt-24 pb-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left Sidebar - Top Questions -->
+            <aside class="lg:w-1/4">
+                <div class="bg-white rounded-xl shadow-sm p-6 sticky top-28">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd" />
+                        </svg>
+                        Топ вопросов
+                    </h2>
+                    <div class="space-y-4">
+                        {% for question in top_questions %}
+                        <div class="group">
+                            <a href="/question/{{ question.question_id }}" class="block">
+                                <h3 class="font-medium text-gray-800 group-hover:text-indigo-600 transition truncate">{{ question.title }}</h3>
+                                <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ question.content }}</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-400">
+                                    <span>Автор: </span>
+                                    <a href="/profile{{ question.author_id }}" class="ml-1 text-indigo-500 hover:underline">{{ question.author_id }}</a>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content - Questions Feed -->
+            <div class="lg:w-2/4">
+                <div class="mb-6 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-800">Актуальные вопросы</h2>
+                    <a href="/ask" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Задать вопрос
+                    </a>
+                </div>
+
+                <div class="space-y-4">
+                    {% for question in questions %}
+                    <div class="question-card bg-white rounded-xl shadow-sm p-6 hover:shadow-md truncate">
+                        <div class="flex justify-between items-start truncate">
+                            <div class="">
+                                <a href="/question/{{ question.question_id }}" class="block">
+                                    <h3 class="text-lg font-semibold text-gray-800 hover:text-indigo-600 transition max-w-xl">
+                                        {{ question.title }}
+                                    </h3>
+                                    <p class="text-gray-600 mt-2 line-clamp-2 max-w-xl overflow-hidden">
+                                        {{ question.content }}
+                                    </p>
+                                </a>
+                                <div class="mt-4 flex items-center space-x-4 text-sm">
+                                    <a href="/profile{{ question.author_id }}" class="flex items-center text-gray-500 hover:text-indigo-600 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        Автор
+                                    </a>
+                                    <a href="/question/{{ question.question_id }}" class="flex items-center text-gray-500 hover:text-indigo-600 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        </svg>
+                                        Ответить
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                <div class="mt-8 flex justify-center">
+                    <nav class="flex items-center space-x-1">
+                        <a href="#" class="px-3 py-1 rounded-lg bg-indigo-600 text-white font-medium">1</a>
+                        <a href="#" class="px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100 font-medium">2</a>
+                        <a href="#" class="px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100 font-medium">3</a>
+                        <span class="px-2 text-gray-400">...</span>
+                        <a href="#" class="px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100 font-medium">10</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Right Sidebar - Additional Info -->
+            <aside class="lg:w-1/4">
+                <div class="bg-white rounded-xl shadow-sm p-6 sticky top-28">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Популярные теги</h2>
+                    <div class="flex flex-wrap gap-2">
+                        {% for tag in top_tags %}
+                        <a href="#" class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm hover:bg-indigo-100 hover:text-indigo-600 transition">{{ tag.tag_name }}</a>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-8">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Статистика</h2>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Всего вопросов</span>
+                                <span class="font-medium ">{{ questions_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-100 py-6">
+        <div class="container mx-auto max-w-7xl px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <span class="text-lg font-bold text-gray-800">Cleverly</span>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-4 md:gap-8">
+                    <a href="/" class="text-gray-600 hover:text-indigo-600 transition">Главная</a>
+                    <a href="/about" class="text-gray-600 hover:text-indigo-600 transition">О нас</a>
+                    <a href="/contact" class="text-gray-600 hover:text-indigo-600 transition">Контакты</a>
+                    <a href="/rules" class="text-gray-600 hover:text-indigo-600 transition">Правила</a>
+                    {% if user %}
+                        <a href="/profile" class="text-gray-600 hover:text-indigo-600 transition">Профиль</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-gray-100 text-center text-sm text-gray-500">
+                © 2023 Cleverly. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle functionality can be added here if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            // Any JavaScript functionality can be added here
+            console.log('Cleverly Q&A platform loaded');
+        });
+    </script>
 </body>
 </html>

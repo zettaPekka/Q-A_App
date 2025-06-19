@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.repositories.questions_repo import QuestionsRepository
 from app.database.repositories.answer_repo import AnswerRepository
 from app.database.repositories.user_repo import UserRepository
+from app.database.repositories.tags_repo import TagsRepo
 from app.database.models import Question, Answer
 
 
@@ -11,18 +12,32 @@ class QuestionsService:
         questions_repo: QuestionsRepository,
         user_repo: UserRepository, 
         answer_repo: AnswerRepository,
+        tags_repo: TagsRepo,
         session: AsyncSession,
     ) -> None:
         self.questions_repo = questions_repo
         self.user_repo = user_repo
         self.answer_repo = answer_repo
         self.session = session
+        self.tags_repo = tags_repo
 
     async def get_question(self, question_id: int) -> Question | None:
         return await self.questions_repo.get(question_id)
 
-    async def add_question(self, title: str, content: str, author_id: int) -> Question:
-        question = await self.questions_repo.add(title, content, author_id)
+    async def add_question(self, title: str, content: str, author_id: int, tags: list[str]) -> Question:
+        if not tags:
+            tags = ['']
+        else:
+            for tag in tags:
+                current_tag = await self.tags_repo.get_tag(tag)
+                if not current_tag:
+                    await self.tags_repo.add_tag(tag)
+            await self.session.flush()
+        
+        question = await self.questions_repo.add(title, content, author_id, tags)
+        
+        await self.tags_repo.add_question_id(tags, question.question_id)
+        
         await self.session.commit()
         return question
     
@@ -43,3 +58,6 @@ class QuestionsService:
         except:
             await self.session.rollback()
             return None
+    
+    async def get_questions_count(self) -> int:
+        return await self.questions_repo.get_questions_count()
