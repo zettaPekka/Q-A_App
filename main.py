@@ -22,6 +22,8 @@ app = FastAPI(lifespan=lifespan)
 app.mount('/app/static', StaticFiles(directory='app/static'), name='static')
 app.include_router(router)
 
+# app.add_exception_handler()
+
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', reload=True, port=1400)
+    uvicorn.run('main:app', reload=True, port=2500)

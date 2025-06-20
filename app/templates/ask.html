@@ -79,11 +79,15 @@
                         {% for question in top_questions %}
                         <div class="group">
                             <a href="/question/{{ question.question_id }}" class="block">
-                                <h3 class="font-medium text-gray-800 group-hover:text-indigo-600 transition">{{ question.title }}</h3>
+                                <h3 class="font-medium text-gray-800 group-hover:text-indigo-600 transition truncate">{{ question.title }}</h3>
                                 <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ question.content }}</p>
                                 <div class="flex items-center mt-2 text-xs text-gray-400">
                                     <span>Автор: </span>
-                                    <a href="/profile{{ question.author_id }}" class="ml-1 text-indigo-500 hover:underline">{{ question.author_id }}</a>
+                                    {% if question.anonymous %}
+                                        <span class="ml-1 text-gray-500">Аноним</span>
+                                    {% else %}
+                                        <a href="/profile/{{ question.author_id }}" class="ml-1 text-indigo-500 hover:underline">{{ question.author_id }}</a>
+                                    {% endif %}
                                 </div>
                             </a>
                         </div>
@@ -192,7 +196,7 @@
             </div>
             
             <div class="mt-6 pt-6 border-t border-gray-100 text-center text-sm text-gray-500">
-                © 2023 Cleverly. Все права защищены.
+                © 2025 Cleverly
             </div>
         </div>
     </footer>

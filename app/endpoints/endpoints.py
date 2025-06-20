@@ -29,10 +29,17 @@ async def index(
     question_service: QuestionsService = Depends(get_questions_service),
     tags_service: TagsService = Depends(get_tags_service),
     user_service: UserService = Depends(get_user_service),
-    user_id: int = Depends(get_current_user_id) 
+    user_id: int = Depends(get_current_user_id),
 ):
-    questions = await question_service.get_n_questions_without_answer(5)
-    top_questions = ...
+    query_params = request.query_params
+    try:
+        page = int(query_params.get('page', 1))
+        page = max(page, 1)
+    except ValueError:
+        page = 1
+    
+    questions = await question_service.get_n_questions_without_answer_by_page(8, page)
+    top_questions = await question_service.get_n_top_questions(5)
     questions_count = await question_service.get_questions_count()
     top_tags = await tags_service.get_n_top_tags(7)
 
@@ -42,9 +49,10 @@ async def index(
             'request': request,
             'user': user,
             'questions':questions,
-            'top_questions': questions, # TODO: top questions
+            'top_questions': top_questions,
             'top_tags': top_tags,
             'questions_count': questions_count,
+            'page':page
         })
     
     return templates.TemplateResponse('index.html', {
@@ -52,29 +60,53 @@ async def index(
         'user': None,
         'bot_username': os.getenv('BOT_USERNAME'),
         'questions':questions,
-        'top_questions': questions, # TODO: top questions
+        'top_questions': top_questions,
         'top_tags': top_tags,
         'questions_count': questions_count,
+        'page':page
     })
 
 
-@router.get('/profile/')
+@router.get('/profile/{user_id}')
 async def profile(
+    user_id: int,
     request: Request,
-    user_id: int = Depends(get_current_user_id),
-    user_service: UserService = Depends(get_user_service)
+    current_user_id: int = Depends(get_current_user_id),
+    user_service: UserService = Depends(get_user_service),
+    questions_service: QuestionsService = Depends(get_questions_service),
+    tags_service: TagsService = Depends(get_tags_service),
 ):
-    if user_id:
-        user = await user_service.get_user(user_id)
+    print(user_id)
+    top_questions = await questions_service.get_n_top_questions(5)
+    questions_count = await questions_service.get_questions_count()
+    top_tags = await tags_service.get_n_top_tags(7)
+    user = await user_service.get_user(user_id)
+    user_questions = await questions_service.get_public_questions(user_id) 
+    user_answers = await questions_service.get_public_answers(user_id)
+    
+    if current_user_id:
+        current_user = await user_service.get_user(current_user_id)
         response = templates.TemplateResponse('profile.html', {
             'request': request,
-            'user': user
+            'current_user': current_user,
+            'user': user,
+            'user_questions': user_questions,
+            'user_answers': user_answers,
+            'top_questions': top_questions,
+            'top_tags': top_tags,
+            'questions_count': questions_count
         })
         return response
     
     response = templates.TemplateResponse('profile.html', {
         'request': request,
-        'user': None
+        'user': user,
+        'current_user': None,
+        'user_questions': user_questions,
+        'user_answers': user_answers,
+        'top_questions': top_questions,
+        'top_tags': top_tags,
+        'questions_count': questions_count
     })
     return response
 
@@ -91,15 +123,14 @@ async def ask(
         return RedirectResponse('/') #TODO: redirect to login page
 
     user = await user_service.get_user(user_id)
-    questions = await question_service.get_n_questions_without_answer(2)
-    top_questions = ...
+    top_questions = await question_service.get_n_top_questions(5)
     questions_count = await question_service.get_questions_count()
     top_tags = await tags_service.get_n_top_tags(7)
     
     response = templates.TemplateResponse('ask.html', {
         'request': request,
         'user': user,
-        'top_questions': questions, # TODO: top questions
+        'top_questions': top_questions,
         'top_tags': top_tags,
         'questions_count': questions_count,
     })
@@ -112,9 +143,15 @@ async def question(
     request: Request,
     question_service: QuestionsService = Depends(get_questions_service),
     user_service: UserService = Depends(get_user_service),
-    user_id: int = Depends(get_current_user_id)
+    tags_service: TagsService = Depends(get_tags_service),
+    user_id: int = Depends(get_current_user_id),
 ):
     question = await question_service.get_question(question_id)
+    top_questions = await question_service.get_n_top_questions(3)
+    top_tags = await tags_service.get_n_top_tags(7)
+    answers = await question_service.get_answers(question_id)
+    questions_count = await question_service.get_questions_count()
+    answers_count = 234
     
     if not question:
         response = templates.TemplateResponse('page404.html', {
@@ -127,14 +164,24 @@ async def question(
         response = templates.TemplateResponse('question.html', {
             'request': request,
             'user': user,
-            'question': question
+            'question': question,
+            'top_questions': top_questions,
+            'top_tags': top_tags,
+            'answers': answers,
+            'questions_count': questions_count,
+            'answers_count':answers_count
         })
         return response
     
     response = templates.TemplateResponse('question.html', {
         'request': request,
         'user_id': None,
-        'question': question
+        'question': question,
+        'top_questions':top_questions,
+        'top_tags': top_tags,
+        'answers': answers,
+        'questions_count': questions_count,
+        'answers_count':answers_count
     })
     return response
 
@@ -147,11 +194,10 @@ async def question(
     user_service: UserService = Depends(get_user_service),
     user_id: int = Depends(get_current_user_id) 
 ):
-    print(user_id)
     if not user_id:
         return Response(status_code=401)
     
-    added_question = await question_service.add_question(question.title, question.content, user_id, question.tags) # TODO add anonymous field
+    added_question = await question_service.add_question(question.title, question.content, user_id, question.tags, question.anonymous) # TODO add anonymous field
     await user_service.add_question_id(user_id, added_question.question_id)
     
     return RedirectResponse(f'/question/{added_question.question_id}/', status_code=303)
@@ -160,16 +206,28 @@ async def question(
 @router.post('/question/{question_id}/answer')
 async def answer_question(
     question_id: int,
-    answer_data: AnswerSchema,
+    answer_data: AnswerSchema = Form(),
     question_service: QuestionsService = Depends(get_questions_service),
     user_id: int = Depends(get_current_user_id) 
 ):
     if not user_id:
         return Response(status_code=401)
+
+    answer = await question_service.answer_question(answer_data.content, question_id, user_id, answer_data.anonymous)
     
-    answer = await question_service.answer_question(answer_data.content, question_id, user_id)
-    
-    return answer
+    response = RedirectResponse(f'/question/{question_id}/', status_code=303)
+    return response
+
+
+@router.post('/change/name/')
+async def change_name(
+    # schema
+    request: Request,
+    user_id: int = Depends(get_current_user_id),
+    user_service: UserService = Depends(get_user_service),
+):
+    #edit name - redirect to profile 303
+    ...
 
 
 @router.get('/auth/telegram/')

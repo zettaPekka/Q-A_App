@@ -35,7 +35,6 @@ def get_questions_service(session = Depends(get_db_session)):
 
 async def get_current_user_id(request: Request):
     jwt_cookie = request.cookies.get(jwt_processing.config.JWT_ACCESS_COOKIE_NAME)
-    print(jwt_cookie)
     if jwt_cookie and (jwt_payload := jwt_processing.decode_access_jwt(jwt_cookie)):
         return int(jwt_payload.get('sub'))
     return None

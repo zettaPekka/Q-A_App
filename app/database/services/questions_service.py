@@ -24,7 +24,7 @@ class QuestionsService:
     async def get_question(self, question_id: int) -> Question | None:
         return await self.questions_repo.get(question_id)
 
-    async def add_question(self, title: str, content: str, author_id: int, tags: list[str]) -> Question:
+    async def add_question(self, title: str, content: str, author_id: int, tags: list[str], anonymous: bool) -> Question:
         if not tags:
             tags = ['']
         else:
@@ -34,23 +34,25 @@ class QuestionsService:
                     await self.tags_repo.add_tag(tag)
             await self.session.flush()
         
-        question = await self.questions_repo.add(title, content, author_id, tags)
+        question = await self.questions_repo.add(title, content, author_id, tags, anonymous)
         
         await self.tags_repo.add_question_id(tags, question.question_id)
         
         await self.session.commit()
         return question
     
-    async def get_n_questions_without_answer(self, limit: int) -> list[Question]:
-        questions = await self.questions_repo.get_n_questions_without_answer(limit)
+    async def get_n_questions_without_answer_by_page(self, limit: int, page) -> list[Question]:
+        offset = (page - 1) * limit
+        questions = await self.questions_repo.get_n_questions_without_answer_with_offset(limit, offset)
         return questions
 
-    async def get_n_questions(self, limit: int) -> list[Question]:
-        return await self.questions_repo.get_n_questions(limit)
-    
-    async def answer_question(self, content: str, question_id: int, user_id: int) -> Answer | None:
+    async def get_n_top_questions(self, limit: int) -> list[Question]:
+        questions = await self.questions_repo.get_n_top_questions(limit)
+        return questions
+
+    async def answer_question(self, content: str, question_id: int, user_id: int, anonymous: bool) -> Answer | None:
         try:
-            answer = await self.answer_repo.add_answer(content, user_id, question_id)
+            answer = await self.answer_repo.add_answer(content, user_id, question_id, anonymous)
             await self.questions_repo.answer_question(question_id, answer.answer_id)
             await self.user_repo.add_answer_id(user_id, answer.answer_id)
             await self.session.commit()
@@ -61,3 +63,12 @@ class QuestionsService:
     
     async def get_questions_count(self) -> int:
         return await self.questions_repo.get_questions_count()
+    
+    async def get_answers(self, question_id: int):
+        return await self.questions_repo.get_answers(question_id)
+    
+    async def get_public_questions(self, user_id: int) -> list[Question]:
+        return await self.questions_repo.get_public_questions(user_id)
+    
+    async def get_public_answers(self, user_id: int) -> list[Answer]:
+        return await self.questions_repo.get_public_answers(user_id)
