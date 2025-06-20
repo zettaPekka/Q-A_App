@@ -50,17 +50,15 @@ class QuestionsService:
         questions = await self.questions_repo.get_n_top_questions(limit)
         return questions
 
-    async def answer_question(self, content: str, question_id: int, user_id: int, anonymous: bool) -> Answer | None:
+    async def answer_question(self, content: str, question_id: int, user_id: int, anonymous: bool) -> None:
         try:
             answer = await self.answer_repo.add_answer(content, user_id, question_id, anonymous)
             await self.questions_repo.answer_question(question_id, answer.answer_id)
             await self.user_repo.add_answer_id(user_id, answer.answer_id)
             await self.session.commit()
-            return answer
         except:
             await self.session.rollback()
-            return None
-    
+
     async def get_questions_count(self) -> int:
         return await self.questions_repo.get_questions_count()
     

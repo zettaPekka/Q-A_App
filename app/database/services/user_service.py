@@ -26,3 +26,7 @@ class UserService:
     async def add_answer_id(self, user_id: int, answer_id: int) -> None:
         await self.user_repo.add_answer_id(user_id, answer_id)
         await self.session.commit()
+    
+    async def change_name(self, user_id: int, new_name: str) -> None:
+        await self.user_repo.change_name(user_id, new_name)
+        await self.session.commit()

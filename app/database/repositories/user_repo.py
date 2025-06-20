@@ -24,3 +24,7 @@ class UserRepository:
         user = await self.get(user_id)
         user.answers_id.append(answer_id)
         flag_modified(user, 'answers_id')
+    
+    async def change_name(self, user_id: int, new_name: str) -> None:
+        user = await self.get(user_id)
+        user.username = new_name

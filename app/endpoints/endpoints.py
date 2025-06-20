@@ -69,14 +69,13 @@ async def index(
 
 @router.get('/profile/{user_id}')
 async def profile(
-    user_id: int,
+    user_id,
     request: Request,
     current_user_id: int = Depends(get_current_user_id),
     user_service: UserService = Depends(get_user_service),
     questions_service: QuestionsService = Depends(get_questions_service),
     tags_service: TagsService = Depends(get_tags_service),
 ):
-    print(user_id)
     top_questions = await questions_service.get_n_top_questions(5)
     questions_count = await questions_service.get_questions_count()
     top_tags = await tags_service.get_n_top_tags(7)
@@ -88,25 +87,29 @@ async def profile(
         current_user = await user_service.get_user(current_user_id)
         response = templates.TemplateResponse('profile.html', {
             'request': request,
-            'current_user': current_user,
-            'user': user,
+            'user': current_user,
+            'profile_user': user,
             'user_questions': user_questions,
             'user_answers': user_answers,
             'top_questions': top_questions,
             'top_tags': top_tags,
-            'questions_count': questions_count
+            'questions_count': questions_count,
+            'user_questions_count': len(user_questions),
+            'answers_count': len(user_answers)
         })
         return response
-    
+
     response = templates.TemplateResponse('profile.html', {
         'request': request,
-        'user': user,
-        'current_user': None,
+        'user': None,
+        'profile_user': user,
         'user_questions': user_questions,
         'user_answers': user_answers,
         'top_questions': top_questions,
         'top_tags': top_tags,
-        'questions_count': questions_count
+        'questions_count': questions_count,
+        'user_questions_count': len(user_questions),
+        'answers_count': len(user_answers)
     })
     return response
 
@@ -139,7 +142,7 @@ async def ask(
 
 @router.get('/question/{question_id}/')
 async def question(
-    question_id: int,
+    question_id,
     request: Request,
     question_service: QuestionsService = Depends(get_questions_service),
     user_service: UserService = Depends(get_user_service),
@@ -151,16 +154,16 @@ async def question(
     top_tags = await tags_service.get_n_top_tags(7)
     answers = await question_service.get_answers(question_id)
     questions_count = await question_service.get_questions_count()
-    answers_count = 234
+    user = await user_service.get_user(user_id)
     
     if not question:
         response = templates.TemplateResponse('page404.html', {
-            'request': request
+            'request': request,
+            'user':user
         })
         return response
     
     if user_id:
-        user = await user_service.get_user(user_id)
         response = templates.TemplateResponse('question.html', {
             'request': request,
             'user': user,
@@ -169,7 +172,7 @@ async def question(
             'top_tags': top_tags,
             'answers': answers,
             'questions_count': questions_count,
-            'answers_count':answers_count
+            'answers_count': len(answers)
         })
         return response
     
@@ -181,7 +184,7 @@ async def question(
         'top_tags': top_tags,
         'answers': answers,
         'questions_count': questions_count,
-        'answers_count':answers_count
+        'answers_count': len(answers)
     })
     return response
 
@@ -213,7 +216,7 @@ async def answer_question(
     if not user_id:
         return Response(status_code=401)
 
-    answer = await question_service.answer_question(answer_data.content, question_id, user_id, answer_data.anonymous)
+    await question_service.answer_question(answer_data.content, question_id, user_id, answer_data.anonymous)
     
     response = RedirectResponse(f'/question/{question_id}/', status_code=303)
     return response
@@ -221,13 +224,16 @@ async def answer_question(
 
 @router.post('/change/name/')
 async def change_name(
-    # schema
     request: Request,
+    new_name: str = Form(max_length=20),
     user_id: int = Depends(get_current_user_id),
     user_service: UserService = Depends(get_user_service),
 ):
-    #edit name - redirect to profile 303
-    ...
+    if not user_id:
+        return Response(status_code=401)
+    
+    await user_service.change_name(user_id, new_name)
+    return RedirectResponse(f'/profile/{user_id}/', status_code=303)
 
 
 @router.get('/auth/telegram/')
@@ -269,13 +275,13 @@ async def login(
     response = RedirectResponse('/')
     response.set_cookie(
         key=jwt_processing.config.JWT_ACCESS_COOKIE_NAME,
-        value=jwt_processing.create_access_jwt(user_id='7234443454297302'),
+        value=jwt_processing.create_access_jwt(user_id='723444345429732'),
         expires=datetime.now(timezone.utc) + timedelta(days=100), 
         httponly=True,
         secure=False,
         samesite='lax'
     )
-    await user_service.add_user('7234443454297302', 'юзер')
+    await user_service.add_user('723444345429732', 'sdf')
     return response
 
 

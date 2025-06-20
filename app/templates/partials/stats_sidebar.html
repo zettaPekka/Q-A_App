@@ -1,0 +1,20 @@
+<!-- templates/partials/stats_sidebar.html -->
+<aside class="lg:w-1/4">
+    <div class="bg-white rounded-xl shadow-sm p-6 sticky top-28">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Популярные теги</h2>
+        <div class="flex flex-wrap gap-2">
+            {% for tag in top_tags %}
+            <a href="#" class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm hover:bg-indigo-100 hover:text-indigo-600 transition">{{ tag.tag_name }}</a>
+            {% endfor %}
+        </div>
+        <div class="mt-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Статистика</h2>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Всего вопросов</span>
+                    <span class="font-medium">{{ questions_count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
