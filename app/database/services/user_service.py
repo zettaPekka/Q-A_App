@@ -2,10 +2,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.models import User
 from app.database.repositories.user_repo import UserRepository
+from app.database.repositories.questions_repo import QuestionsRepository
 
 
 class UserService:
-    def __init__(self, user_repo: UserRepository, session: AsyncSession):
+    def __init__(
+        self,
+        user_repo: UserRepository,
+        session: AsyncSession
+    ):
         self.user_repo = user_repo
         self.session = session
     
@@ -30,3 +35,13 @@ class UserService:
     async def change_name(self, user_id: int, new_name: str) -> None:
         await self.user_repo.change_name(user_id, new_name)
         await self.session.commit()
+    
+    async def get_user_questions(self, user_id: int, private: bool = False):
+        if not private:
+            return await self.user_repo.get_public_user_questions(user_id)
+        return await self.user_repo.get_user_questions(user_id)
+    
+    async def get_user_answers(self, user_id, private: bool = False):
+        if not private:
+            return await self.user_repo.get_public_user_answers(user_id)
+        return await self.user_repo.get_user_answers(user_id)

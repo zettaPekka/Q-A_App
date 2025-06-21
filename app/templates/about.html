@@ -1,0 +1,87 @@
+<!-- templates/about.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О нас - Cleverly</title>
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color:rgb(245, 245, 245); 
+        }
+        .header-glass {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-20 pt-5">
+
+    <!-- Header -->
+    {% include "partials/header.html" %}
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto max-w-7xl px-4 pt-24 pb-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Left Sidebar - Top Questions -->
+            {% include "partials/top_questions.html" %}
+            
+            <!-- Main Content - About Us -->
+            <div class="lg:w-2/4">
+                <div class="bg-white rounded-xl shadow-sm p-8 mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-6">О проекте Cleverly</h1>
+                    <p class="text-gray-600 leading-relaxed mb-4">
+                        Cleverly — это платформа вопросов и ответов, созданная с целью собрать вместе людей, которые хотят делиться знаниями, помогать другим и находить решения.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed mb-4">
+                        Мы верим, что лучшие идеи рождаются в сообществе. Наш сайт позволяет задавать вопросы, отвечать на них и получать полезную информацию из разных областей — от программирования до искусства.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed">
+                        Cleverly поддерживает анонимность, чтобы каждый мог чувствовать себя комфортно при обсуждении любых тем. Здесь нет рекламы, только чистое содержание и уважение к пользователям.
+                    </p>
+                </div>
+
+                <!-- Импорт статистики -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Статистика сайта</h2>
+                    <p class="text-gray-600 mb-4">Мы гордимся нашим растущим сообществом:</p>
+                    <ul class="space-y-3">
+                        <li class="flex justify-between border-b border-gray-100 pb-2">
+                            <span class="text-gray-600">Всего вопросов:</span>
+                            <span class="font-medium">{{ questions_count }}</span>
+                        </li>
+                        <li class="flex justify-between border-b border-gray-100 pb-2">
+                            <span class="text-gray-600">Всего пользователей:</span>
+                            <span class="font-medium">{{ users_count }}</span>
+                        </li>
+                        <li class="flex justify-between border-b border-gray-100 pb-2">
+                            <span class="text-gray-600">Активных тегов:</span>
+                            <span class="font-medium">{{ tags_count }}</span>
+                        </li>
+                        <li class="flex justify-between pb-2">
+                            <span class="text-gray-600">Среднее кол-во ответов:</span>
+                            <span class="font-medium">{{ avg_answers_per_question }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Sidebar - Statistics -->
+            {% include "partials/stats_sidebar.html" %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    {% include "partials/footer.html" %}
+</body>
+</html>

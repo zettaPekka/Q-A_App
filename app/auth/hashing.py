@@ -23,7 +23,7 @@ def verify_telegram_hash(received_data: dict) -> bool:
     )
 
     # secret_key = sha256(os.getenv('BOT_TOKEN').encode()).digest() # TODO: comeback to os.getenv('BOT_TOKEN')
-    secret_key = sha256('8146646746:AAFFdCjiXIYRjCCcjeoQqGtpq4ny3BXKeGI'.encode()).digest()
+    secret_key = sha256(''.encode()).digest()
 
 
     expected_hash = hmac.new(

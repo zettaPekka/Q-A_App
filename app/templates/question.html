@@ -1,16 +1,15 @@
-<!-- templates/question_detail.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ question.title }} - Cleverly</title>
-    <script src="https://cdn.tailwindcss.com"></script> 
+    <script src="https://cdn.tailwindcss.com"></script>    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; 
+            background-color:rgb(245, 245, 245); 
         }
         .header-glass {
             backdrop-filter: blur(10px);
@@ -41,9 +40,14 @@
             overflow: visible;
             height: auto;
         }
+
+        button[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col pb-24 pt-5">
 
     <!-- Header -->
     {% include "partials/header.html" %}
@@ -81,7 +85,7 @@
                 {% if user %}
                 <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Оставить ответ</h3>
-                    <form action="/question/{{ question.question_id }}/answer" method="POST">
+                    <form action="/question/{{ question.question_id }}/answer" method="POST" onsubmit="return validateAnswer()">
                         <textarea 
                             name="content" 
                             rows="4" 
@@ -94,7 +98,7 @@
                             <input type="checkbox" id="anonymous" name="anonymous" class="mr-2">
                             <label for="anonymous" class="text-sm text-gray-600">Ответить анонимно</label>
                         </div>
-                        <button type="submit" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        <button type="submit" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition" disabled>
                             Отправить ответ
                         </button>
                     </form>
@@ -112,7 +116,7 @@
                         <div class="space-y-6">
                             {% for answer in answers %}
                                 <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
-                                    <p class="text-gray-600 truncate-lines line-clamp-5" data-max-lines="5">{{ answer.content }}</p>
+                                    <p class="text-gray-600 line-clamp-5" data-max-lines="5">{{ answer.content }}</p>
                                     <div class="mt-4 flex items-center justify-between">
                                         <div class="flex items-center text-sm text-gray-500">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -146,6 +150,7 @@
     {% include "partials/footer.html" %}
 
     <script>
+        document.querySelector('textarea').value = ''
         function toggleAnswer(button) {
             const container = button.parentElement.parentElement;
             const textEl = container.querySelector("p");
@@ -162,16 +167,45 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".truncate-lines").forEach(el => {
-                // Проверяем, нужно ли показывать кнопку
-                const lines = el.scrollHeight / 20; // грубая оценка высоты строки
-                const maxLines = parseInt(el.getAttribute("data-max-lines"));
+            // Проверка для показа кнопки "Показать полностью"
+            document.querySelectorAll(".line-clamp-5").forEach(el => {
                 const parentButton = el.closest(".bg-white").querySelector("button[onclick]");
+                const lineHeight = 20;
+                const lines = el.scrollHeight / lineHeight;
+                const maxLines = parseInt(el.getAttribute("data-max-lines")) || 5;
+
                 if (lines > maxLines) {
                     parentButton.classList.remove("hidden");
                 }
             });
+
+            // Валидация формы: запрет отправки пустого ответа
+            const textarea = document.querySelector('textarea[name="content"]');
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            if (textarea && submitBtn) {
+                textarea.addEventListener("input", function () {
+                    if (textarea.value.trim() === "") {
+                        submitBtn.disabled = true;
+                    } else {
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
         });
+
+        function validateAnswer() {
+            const textarea = document.querySelector('textarea[name="content"]');
+            const value = textarea.value;
+
+            if (!value || value.trim().length === 0) {
+                alert("Пожалуйста, введите текст ответа.");
+                textarea.focus();
+                return false;
+            }
+
+            return true;
+        }
     </script>
 </body>
 </html>

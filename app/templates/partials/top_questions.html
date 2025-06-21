@@ -7,22 +7,23 @@
             </svg>
             Топ вопросов
         </h2>
+
         <div class="space-y-4">
             {% for question in top_questions %}
-            <div class="group">
-                <a href="/question/{{ question.question_id }}" class="block">
-                    <h3 class="font-medium text-gray-800 group-hover:text-indigo-600 transition truncate">{{ question.title }}</h3>
-                    <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ question.content }}</p>
-                    <div class="flex items-center mt-2 text-xs text-gray-400">
-                        <span>Автор: </span>
-                        {% if question.anonymous %}
-                            <span class="ml-1 text-gray-500">Аноним</span>
-                        {% else %}
-                            <a href="/profile/{{ question.author_id }}" class="ml-1 text-indigo-500 hover:underline">{{ question.author_id }}</a>
-                        {% endif %}
-                    </div>
-                </a>
-            </div>
+                <div class="group py-3 border-t border-gray-100 pt-4 first:border-t-0 first:pt-0">
+                    <a href="/question/{{ question.question_id }}" class="block">
+                        <h3 class="font-medium text-gray-800 group-hover:text-indigo-600 transition line-clamp-1">{{ question.title }}</h3>
+                        <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ question.content }}</p>
+                        <div class="flex items-center mt-2 text-xs text-gray-400">
+                            <span>Автор:</span>
+                            {% if question.anonymous %}
+                                <span class="ml-1 text-gray-500">Аноним</span>
+                            {% else %}
+                                <a href="/profile/{{ question.author_id }}" class="ml-1 text-indigo-500 hover:underline truncate max-w-[120px] sm:max-w-none">{{ question.author_id }}</a>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
             {% endfor %}
         </div>
     </div>

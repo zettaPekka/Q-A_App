@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль {{ profile_user.username if profile_user else 'Пользователь' }} - Cleverly</title>
-    <script src="https://cdn.tailwindcss.com"></script>    
+    <script src="https://cdn.tailwindcss.com"></script>       
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;    
+            background-color:rgb(245, 245, 245);  
         }
         .header-glass {
             backdrop-filter: blur(10px);
@@ -44,7 +44,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col pb-24 pt-5">
 
     <!-- Header -->
     {% include "partials/header.html" %}
@@ -86,13 +86,15 @@
                         {% if user_questions %}
                             <div class="horizontal-scroll">
                                 {% for q in user_questions %}
-                                <a href="/question/{{ q.question_id }}" class="flex-shrink-0 w-64 bg-white rounded-xl shadow-sm p-4 mr-4 hover:shadow-md transition">
-                                    <h4 class="font-semibold text-gray-800 truncate">{{ q.title }}</h4>
-                                    <p class="text-gray-600 text-sm mt-1 line-clamp-2">{{ q.content }}</p>
-                                    <div class="mt-2 text-xs text-gray-500">
-                                        {% if q.anonymous %}Аноним{% else %}Автор{% endif %}
-                                    </div>
-                                </a>
+                                    {% if not q.anonymous or (user and user.telegram_id == profile_user.telegram_id) %}
+                                        <a href="/question/{{ q.question_id }}" class="flex-shrink-0 w-64 bg-white rounded-xl shadow-sm p-4 mr-4 hover:shadow-md transition">
+                                            <h4 class="font-semibold text-gray-800 truncate">{{ q.title }}</h4>
+                                            <p class="text-gray-600 text-sm mt-1 line-clamp-2">{{ q.content }}</p>
+                                            <div class="mt-2 text-xs text-gray-500">
+                                                {% if q.anonymous %}Аноним{% else %}Автор{% endif %}
+                                            </div>
+                                        </a>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         {% else %}
@@ -106,13 +108,15 @@
                         {% if user_answers %}
                             <div class="horizontal-scroll">
                                 {% for a in user_answers %}
-                                <a href="/question/{{ a.question_id }}" class="flex-shrink-0 w-64 bg-white rounded-xl shadow-sm p-4 mr-4 hover:shadow-md transition">
-                                    <h4 class="font-semibold text-gray-800 truncate">Ответ на "{{ a.question_id }}"</h4>
-                                    <p class="text-gray-600 text-sm mt-1 line-clamp-3">{{ a.content }}</p>
-                                    <div class="mt-2 text-xs text-gray-500">
-                                        {% if a.anonymous %}Анонимный ответ{% else %}Автор{% endif %}
-                                    </div>
-                                </a>
+                                    {% if not a.anonymous or (user and user.telegram_id == profile_user.telegram_id) %}
+                                        <a href="/question/{{ a.question_id }}" class="flex-shrink-0 w-64 bg-white rounded-xl shadow-sm p-4 mr-4 hover:shadow-md transition">
+                                            <h4 class="font-semibold text-gray-800 truncate">Ответ на "{{ a.question_id }}"</h4>
+                                            <p class="text-gray-600 text-sm mt-1 line-clamp-3">{{ a.content }}</p>
+                                            <div class="mt-2 text-xs text-gray-500">
+                                                {% if a.anonymous %}Анонимный ответ{% else %}Автор{% endif %}
+                                            </div>
+                                        </a>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         {% else %}

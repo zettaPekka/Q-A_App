@@ -18,11 +18,10 @@ async def lifespan(app: FastAPI):
     yield
     logging.info('Shutting down')
 
-app = FastAPI(lifespan=lifespan)
+
+app = FastAPI(lifespan=lifespan) # TODO: openapi_url=None docs_url=none redoc_url=none 
 app.mount('/app/static', StaticFiles(directory='app/static'), name='static')
 app.include_router(router)
-
-# app.add_exception_handler()
 
 
 if __name__ == '__main__':

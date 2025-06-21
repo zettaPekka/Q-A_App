@@ -51,13 +51,3 @@ class QuestionsRepository:
         answers = await self.session.execute(select(Answer).where(Answer.question_id == question_id))
         answers = answers.scalars().all()
         return answers
-    
-    async def get_public_questions(self, user_id: int) -> list[Question]:
-        questions = await self.session.execute(select(Question).where(and_(Question.anonymous == False, Question.author_id == user_id)))
-        questions = questions.scalars().all()
-        return questions
-    
-    async def get_public_answers(self, user_id: int) -> list[Answer]:
-        answers = await self.session.execute(select(Answer).where(and_(Answer.anonymous == False, Answer.author_id == user_id)))
-        answers = answers.scalars().all()
-        return answers

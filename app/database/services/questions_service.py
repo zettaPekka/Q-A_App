@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.repositories.questions_repo import QuestionsRepository
@@ -56,7 +58,8 @@ class QuestionsService:
             await self.questions_repo.answer_question(question_id, answer.answer_id)
             await self.user_repo.add_answer_id(user_id, answer.answer_id)
             await self.session.commit()
-        except:
+        except Exception as e:
+            logging.excepteion(e)
             await self.session.rollback()
 
     async def get_questions_count(self) -> int:
@@ -64,9 +67,4 @@ class QuestionsService:
     
     async def get_answers(self, question_id: int):
         return await self.questions_repo.get_answers(question_id)
-    
-    async def get_public_questions(self, user_id: int) -> list[Question]:
-        return await self.questions_repo.get_public_questions(user_id)
-    
-    async def get_public_answers(self, user_id: int) -> list[Answer]:
-        return await self.questions_repo.get_public_answers(user_id)
+

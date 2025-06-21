@@ -1,0 +1,92 @@
+<!-- templates/rules.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правила - Cleverly</title>
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color:rgb(245, 245, 245); 
+        }
+        .header-glass {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-20 pt-5">
+
+    <!-- Header -->
+    {% include "partials/header.html" %}
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto max-w-7xl px-4 pt-24 pb-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Left Sidebar - Top Questions -->
+            {% include "partials/top_questions.html" %}
+            
+            <!-- Main Content - Rules -->
+            <div class="lg:w-2/4">
+                <div class="bg-white rounded-xl shadow-sm p-8 mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-6">Правила использования</h1>
+
+                    <section class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">1. Уважайте других участников</h2>
+                        <p class="text-gray-600 leading-relaxed">
+                            Наши пользователи — основа сообщества. Взаимоотношения между участниками должны строиться на взаимном уважении и доброжелательности.
+                        </p>
+                    </section>
+
+                    <section class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">2. Задавайте качественные вопросы</h2>
+                        <p class="text-gray-600 leading-relaxed">
+                            Вопрос должен быть понятным, конкретным и не дублировать уже существующие темы. Постарайтесь описать контекст и указать, что вы уже попробовали.
+                        </p>
+                    </section>
+
+                    <section class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">3. Ответы должны быть полезными</h2>
+                        <p class="text-gray-600 leading-relaxed">
+                            Не пишите просто "Да", "Нет" или комментарии без сути. Давайте развернутые, полезные ответы, которые действительно помогут.
+                        </p>
+                    </section>
+
+                    <section class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">4. Анонимность допускается</h2>
+                        <p class="text-gray-600 leading-relaxed">
+                            Вы можете публиковать вопросы и ответы анонимно. Это не влияет на рейтинг и популярность ваших публикаций.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">5. Запрещено</h2>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2 pl-4">
+                            <li>Публикация рекламы, спама и фишинга.</li>
+                            <li>Оскорбления, ненормативная лексика, троллинг.</li>
+                            <li>Продвижение запрещённого контента.</li>
+                            <li>Злоупотребление капслоком и эмодзи.</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Right Sidebar - Statistics -->
+            {% include "partials/stats_sidebar.html" %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    {% include "partials/footer.html" %}
+</body>
+</html>
