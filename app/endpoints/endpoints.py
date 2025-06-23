@@ -216,6 +216,7 @@ async def rules(
     })
     return response
 
+
 @router.post('/question/')
 async def question(
     question: QuestionSchema = Form(),
