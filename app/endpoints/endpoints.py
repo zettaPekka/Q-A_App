@@ -293,11 +293,29 @@ async def auth_telegram(
     return response
 
 
+@router.get('/logout/')
+async def logout():
+    response = RedirectResponse('/')
+    response.delete_cookie(jwt_processing.config.JWT_ACCESS_COOKIE_NAME)
+    return response
+
+
+@router.get('/{path:path}/')
+async def not_found(
+    request: Request,
+    user_service: UserService = Depends(get_user_service),
+    user_id: int | None = Depends(get_current_user_id),
+):
+    user = await user_service.get_user(user_id)
+    response = templates.TemplateResponse('page404.html', {
+        'request': request,
+        'user':user
+    })
+    return response
+
+
 
 '''TEST'''
-
-
-
 @router.get('/login/')
 async def login(
     user_service: UserService = Depends(get_user_service)
@@ -312,26 +330,4 @@ async def login(
         samesite='lax'
     )
     await user_service.add_user('7234443454297302', 'sdf')
-    return response
-
-
-@router.get('/logout/')
-async def logout():
-    response = RedirectResponse('/')
-    response.delete_cookie(jwt_processing.config.JWT_ACCESS_COOKIE_NAME)
-    return response
-
-
-
-@router.get('/{path:path}/')
-async def not_found(
-    request: Request,
-    user_service: UserService = Depends(get_user_service),
-    user_id: int | None = Depends(get_current_user_id),
-):
-    user = await user_service.get_user(user_id)
-    response = templates.TemplateResponse('page404.html', {
-        'request': request,
-        'user':user
-    })
     return response

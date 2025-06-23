@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
-from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy import select, func
 
-from app.database.models import Question, Answer
+from app.database.models import Question
 
 
 class QuestionsRepository:
@@ -37,17 +36,7 @@ class QuestionsRepository:
         questions = questions.scalars().all()
         return questions
     
-    async def answer_question(self, question_id: int, answer_id: int) -> None:
-        question = await self.get(question_id)
-        question.answers_id.append(answer_id)
-        flag_modified(question, 'answers_id')
-    
     async def get_questions_count(self) -> int:
         questions = await self.session.execute(select(Question))
         questions = questions.scalars().all()
         return len(questions)
-    
-    async def get_answers(self, question_id: int) -> list[Answer]:
-        answers = await self.session.execute(select(Answer).where(Answer.question_id == question_id))
-        answers = answers.scalars().all()
-        return answers

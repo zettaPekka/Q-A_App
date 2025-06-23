@@ -28,7 +28,7 @@ class Question(Base):
 
 class Answer(Base):
     __tablename__ = 'answers'
-
+    
     answer_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     content: Mapped[str]
     author_id: Mapped[int]

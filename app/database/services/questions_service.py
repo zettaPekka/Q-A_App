@@ -6,7 +6,7 @@ from app.database.repositories.questions_repo import QuestionsRepository
 from app.database.repositories.answer_repo import AnswerRepository
 from app.database.repositories.user_repo import UserRepository
 from app.database.repositories.tags_repo import TagsRepo
-from app.database.models import Question, Answer
+from app.database.models import Question
 
 
 class QuestionsService:
@@ -55,16 +55,16 @@ class QuestionsService:
     async def answer_question(self, content: str, question_id: int, user_id: int, anonymous: bool) -> None:
         try:
             answer = await self.answer_repo.add_answer(content, user_id, question_id, anonymous)
-            await self.questions_repo.answer_question(question_id, answer.answer_id)
+            await self.answer_repo.answer_question(question_id, answer.answer_id)
             await self.user_repo.add_answer_id(user_id, answer.answer_id)
             await self.session.commit()
         except Exception as e:
-            logging.excepteion(e)
+            logging.exception(e)
             await self.session.rollback()
 
     async def get_questions_count(self) -> int:
         return await self.questions_repo.get_questions_count()
     
     async def get_answers(self, question_id: int):
-        return await self.questions_repo.get_answers(question_id)
+        return await self.answer_repo.get_answers(question_id)
 

@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.models import User
 from app.database.repositories.user_repo import UserRepository
-from app.database.repositories.questions_repo import QuestionsRepository
 
 
 class UserService:
