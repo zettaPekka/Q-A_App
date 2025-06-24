@@ -11,18 +11,19 @@ from app.database.init_database import init_db
 
 logging.basicConfig(level=logging.INFO)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.info('Starting up')
+    logging.info("Starting up")
     await init_db()
     yield
-    logging.info('Shutting down')
+    logging.info("Shutting down")
 
 
-app = FastAPI(lifespan=lifespan) # TODO: openapi_url=None docs_url=none redoc_url=none 
-app.mount('/app/static', StaticFiles(directory='app/static'), name='static')
+app = FastAPI(lifespan=lifespan)  # TODO: openapi_url=None docs_url=none redoc_url=none
+app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(router)
 
 
-if __name__ == '__main__':
-    uvicorn.run('main:app', reload=True, port=2000)
+if __name__ == "__main__":
+    uvicorn.run("main:app", reload=True, port=2000)

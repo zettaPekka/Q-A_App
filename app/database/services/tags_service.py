@@ -11,7 +11,7 @@ class TagsService:
 
     async def get_tag(self, tag_name: str) -> Tag | None:
         return await self.tags_repo.get_tag(tag_name)
-    
+
     async def get_n_top_tags(self, n: int) -> list[Tag]:
         return await self.tags_repo.get_n_top_tags(n)
 

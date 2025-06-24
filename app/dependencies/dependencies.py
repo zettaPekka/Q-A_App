@@ -18,23 +18,27 @@ async def get_db_session():
         finally:
             await session.close()
 
-def get_user_service(session = Depends(get_db_session)):
+
+def get_user_service(session=Depends(get_db_session)):
     user_repo = UserRepository(session)
     return UserService(user_repo, session)
 
-def get_tags_service(session = Depends(get_db_session)):
+
+def get_tags_service(session=Depends(get_db_session)):
     tags_repo = TagsRepo(session)
     return TagsService(tags_repo, session)
 
-def get_questions_service(session = Depends(get_db_session)):
+
+def get_questions_service(session=Depends(get_db_session)):
     questions_repo = QuestionsRepository(session)
     user_repo = UserRepository(session)
     answer_repo = AnswerRepository(session)
     tags_repo = TagsRepo(session)
     return QuestionsService(questions_repo, user_repo, answer_repo, tags_repo, session)
 
+
 async def get_current_user_id(request: Request):
     jwt_cookie = request.cookies.get(jwt_processing.config.JWT_ACCESS_COOKIE_NAME)
     if jwt_cookie and (jwt_payload := jwt_processing.decode_access_jwt(jwt_cookie)):
-        return int(jwt_payload.get('sub'))
+        return int(jwt_payload.get("sub"))
     return None

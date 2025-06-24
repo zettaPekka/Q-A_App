@@ -10,9 +10,10 @@ from app.database.models import Question
 
 
 class QuestionsService:
-    def __init__(self,
+    def __init__(
+        self,
         questions_repo: QuestionsRepository,
-        user_repo: UserRepository, 
+        user_repo: UserRepository,
         answer_repo: AnswerRepository,
         tags_repo: TagsRepo,
         session: AsyncSession,
@@ -26,35 +27,49 @@ class QuestionsService:
     async def get_question(self, question_id: int) -> Question | None:
         return await self.questions_repo.get(question_id)
 
-    async def add_question(self, title: str, content: str, author_id: int, tags: list[str], anonymous: bool) -> Question:
+    async def add_question(
+        self, title: str, content: str, author_id: int, tags: list[str], anonymous: bool
+    ) -> Question:
         if not tags:
-            tags = ['']
+            tags = [""]
         else:
             for tag in tags:
                 current_tag = await self.tags_repo.get_tag(tag)
                 if not current_tag:
                     await self.tags_repo.add_tag(tag)
             await self.session.flush()
-        
-        question = await self.questions_repo.add(title, content, author_id, tags, anonymous)
-        
+
+        question = await self.questions_repo.add(
+            title, content, author_id, tags, anonymous
+        )
+
         await self.tags_repo.add_question_id(tags, question.question_id)
-        
+
         await self.session.commit()
         return question
-    
-    async def get_n_questions_without_answer_by_page(self, limit: int, page) -> list[Question]:
+
+    async def get_n_questions_without_answer_by_page(
+        self, limit: int, page
+    ) -> list[Question]:
         offset = (page - 1) * limit
-        questions = await self.questions_repo.get_n_questions_without_answer_with_offset(limit, offset)
+        questions = (
+            await self.questions_repo.get_n_questions_without_answer_with_offset(
+                limit, offset
+            )
+        )
         return questions
 
     async def get_n_top_questions(self, limit: int) -> list[Question]:
         questions = await self.questions_repo.get_n_top_questions(limit)
         return questions
 
-    async def answer_question(self, content: str, question_id: int, user_id: int, anonymous: bool) -> None:
+    async def answer_question(
+        self, content: str, question_id: int, user_id: int, anonymous: bool
+    ) -> None:
         try:
-            answer = await self.answer_repo.add_answer(content, user_id, question_id, anonymous)
+            answer = await self.answer_repo.add_answer(
+                content, user_id, question_id, anonymous
+            )
             await self.answer_repo.answer_question(question_id, answer.answer_id)
             await self.user_repo.add_answer_id(user_id, answer.answer_id)
             await self.session.commit()
@@ -64,7 +79,9 @@ class QuestionsService:
 
     async def get_questions_count(self) -> int:
         return await self.questions_repo.get_questions_count()
-    
+
     async def get_answers(self, question_id: int):
         return await self.answer_repo.get_answers(question_id)
 
+    async def search_questions(self, user_input: str):
+        return await self.questions_repo.search_questions(user_input)

@@ -8,7 +8,7 @@ from .models import Base
 
 load_dotenv()
 
-engine = create_async_engine(os.getenv('DATABASE_URL'))
+engine = create_async_engine(os.getenv("DATABASE_URL"))
 
 session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
