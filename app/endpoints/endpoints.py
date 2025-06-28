@@ -68,7 +68,7 @@ async def index(
     )
 
 
-@router.get("/profile/{user_id}")
+@router.get("/profile/{user_id}/")
 async def profile(
     user_id,
     request: Request,
@@ -326,19 +326,6 @@ async def logout():
     return response
 
 
-@router.get("/{path:path}/")
-async def not_found(
-    request: Request,
-    user_service: UserService = Depends(get_user_service),
-    user_id: int | None = Depends(get_current_user_id),
-):
-    user = await user_service.get_user(user_id)
-    response = templates.TemplateResponse(
-        "page404.html", {"request": request, "user": user}
-    )
-    return response
-
-
 """TEST"""
 
 
@@ -357,7 +344,15 @@ async def login(user_service: UserService = Depends(get_user_service)):
     return response
 
 
-@router.get("/a")
-async def a(s: str, q: QuestionsService = Depends(get_questions_service)):
+@router.get("/{path:path}/")
+async def not_found(
+    request: Request,
+    user_service: UserService = Depends(get_user_service),
+    user_id: int | None = Depends(get_current_user_id),
+):
+    user = await user_service.get_user(user_id)
+    response = templates.TemplateResponse(
+        "page404.html", {"request": request, "user": user}
+    )
+    return response
 
-    return await q.search_questions(s)

@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
+from sqlalchemy.orm import joinedload
 
-from app.database.models import Question
+from app.database.models import Question, Tag
 
 
 class QuestionsRepository:
@@ -55,4 +56,4 @@ class QuestionsRepository:
         questions = await self.get_all_questions()
         return len(questions)
 
-    async def search_questions(self, user_input: str): ...
+

@@ -82,6 +82,3 @@ class QuestionsService:
 
     async def get_answers(self, question_id: int):
         return await self.answer_repo.get_answers(question_id)
-
-    async def search_questions(self, user_input: str):
-        return await self.questions_repo.search_questions(user_input)
