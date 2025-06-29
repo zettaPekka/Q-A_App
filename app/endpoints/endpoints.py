@@ -2,15 +2,17 @@ from datetime import datetime, timedelta, timezone
 import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Request, Response, Query, Depends, Form
+from fastapi import APIRouter, Request, Response, Query, Depends, Form, Body
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 import app.auth.jwt_processing as jwt_processing
 from app.schemas.question_schema import QuestionSchema
 from app.schemas.auth_schema import TelegramAuthData
 from app.schemas.answer_schema import AnswerSchema
+from app.schemas.like_schema import LikeSchema
 from app.auth.hashing import verify_telegram_hash
 from app.database.services.user_service import UserService
+from app.database.services.answer_service import AnswerService
 from app.database.services.questions_service import QuestionsService
 from app.database.services.tags_service import TagsService
 from app.dependencies.dependencies import (
@@ -18,6 +20,7 @@ from app.dependencies.dependencies import (
     get_questions_service,
     get_current_user_id,
     get_tags_service,
+    get_answer_service,
 )
 
 
@@ -211,7 +214,7 @@ async def rules(
     return response
 
 
-@router.get("/about/")  # TODO: more info
+@router.get("/about/")
 async def rules(
     request: Request,
     user_id: int | None = Depends(get_current_user_id),
@@ -251,7 +254,7 @@ async def question(
 
     added_question = await question_service.add_question(
         question.title, question.content, user_id, question.tags, question.anonymous
-    )  # TODO add anonymous field
+    )
     await user_service.add_question_id(user_id, added_question.question_id)
 
     return RedirectResponse(f"/question/{added_question.question_id}/", status_code=303)
@@ -290,6 +293,19 @@ async def change_name(
 
     await user_service.change_name(user_id, new_name)
     return RedirectResponse(f"/profile/{user_id}/", status_code=303)
+
+
+@router.post("/answer/like/")
+async def like_question(
+    like_data: LikeSchema = Body(),
+    user_id: int = Depends(get_current_user_id),
+    answer_service: AnswerService = Depends(get_answer_service),
+):
+    if not user_id:
+        return Response(status_code=401)
+
+    action = await answer_service.action_answer(like_data.answer_id, user_id)
+    return action
 
 
 @router.get("/auth/telegram/")
@@ -355,4 +371,3 @@ async def not_found(
         "page404.html", {"request": request, "user": user}
     )
     return response
-

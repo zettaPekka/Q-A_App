@@ -55,5 +55,3 @@ class QuestionsRepository:
     async def get_questions_count(self) -> int:
         questions = await self.get_all_questions()
         return len(questions)
-
-

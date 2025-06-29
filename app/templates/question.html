@@ -45,6 +45,14 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+        
+        /* Стили для лайков */
+        button svg {
+            transition: all 0.2s ease;
+        }
+        button:hover svg {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col pb-24 pt-5">
@@ -139,7 +147,25 @@
                                                 <a href="/profile/{{ answer.author_id }}" class="hover:text-indigo-600 transition">{{ answer.author_id }}</a>
                                             {% endif %}
                                         </div>
-                                        <button onclick="toggleAnswer(this)" class="text-xs text-indigo-600 hover:text-indigo-800 underline hidden">Показать полностью</button>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm text-gray-600">{{ answer.likes|length if answer.likes else 0 }}</span>
+                                            {% if user %}
+                                                <button onclick="likeAnswer('{{ answer.answer_id }}', '{{ user.telegram_id }}')" class="focus:outline-none">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" 
+                                                         fill="{% if answer.likes and user.telegram_id in answer.likes %}red{% else %}gray{% endif %}" 
+                                                         viewBox="0 0 24 24" stroke="none">
+                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                                    </svg>
+                                                </button>
+                                            {% else %}
+                                                <button onclick="showLoginAlert()" class="focus:outline-none">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="gray" viewBox="0 0 24 24" stroke="none">
+                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                                    </svg>
+                                                </button>
+                                            {% endif %}
+                                            <button onclick="toggleAnswer(this)" class="text-xs text-indigo-600 hover:text-indigo-800 underline hidden">Показать полностью</button>
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -216,6 +242,49 @@
             }
 
             return true;
+        }
+
+        // Функции для работы с лайками
+        function showLoginAlert() {
+            alert("Чтобы поставить лайк, войдите через Telegram.");
+        }
+
+        async function likeAnswer(answerId, userId) {
+            try {
+                const response = await fetch('/answer/like/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        answer_id: answerId,
+                        user_id: userId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка при отправке лайка');
+                }
+
+                const result = await response.json();
+                
+                // Обновляем UI без перезагрузки страницы
+                const likeButton = document.querySelector(`button[onclick="likeAnswer('${answerId}', '${userId}')"]`);
+                const likeCountSpan = likeButton.previousElementSibling;
+                const heartIcon = likeButton.querySelector('svg');
+                
+                if (result.action === 'liked') {
+                    heartIcon.setAttribute('fill', 'red');
+                    likeCountSpan.textContent = parseInt(likeCountSpan.textContent) + 1;
+                } else {
+                    heartIcon.setAttribute('fill', 'gray');
+                    likeCountSpan.textContent = parseInt(likeCountSpan.textContent) - 1;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при обработке лайка');
+            }
         }
     </script>
 </body>

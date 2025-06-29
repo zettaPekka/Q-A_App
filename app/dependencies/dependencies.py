@@ -6,6 +6,8 @@ from app.database.init_database import session_factory
 from app.database.repositories.questions_repo import QuestionsRepository
 from app.database.services.questions_service import QuestionsService
 from app.database.repositories.answer_repo import AnswerRepository
+from app.database.repositories.answer_repo import AnswerRepository
+from app.database.services.answer_service import AnswerService
 from app.database.services.tags_service import TagsService
 from app.database.repositories.tags_repo import TagsRepo
 import app.auth.jwt_processing as jwt_processing
@@ -42,3 +44,8 @@ async def get_current_user_id(request: Request):
     if jwt_cookie and (jwt_payload := jwt_processing.decode_access_jwt(jwt_cookie)):
         return int(jwt_payload.get("sub"))
     return None
+
+
+async def get_answer_service(session=Depends(get_db_session)):
+    answer_repo = AnswerRepository(session)
+    return AnswerService(answer_repo, session)
