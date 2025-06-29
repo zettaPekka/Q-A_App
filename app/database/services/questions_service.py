@@ -48,12 +48,12 @@ class QuestionsService:
         await self.session.commit()
         return question
 
-    async def get_n_questions_without_answer_by_page(
+    async def get_n_current_questions_by_page(
         self, limit: int, page
     ) -> list[Question]:
         offset = (page - 1) * limit
         questions = (
-            await self.questions_repo.get_n_questions_without_answer_with_offset(
+            await self.questions_repo.get_n_current_questions_with_offset(
                 limit, offset
             )
         )

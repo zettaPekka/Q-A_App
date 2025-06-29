@@ -48,7 +48,7 @@ async def index(
     except ValueError:
         page = 1
 
-    questions = await question_service.get_n_questions_without_answer_by_page(8, page)
+    questions = await question_service.get_n_current_questions_by_page(8, page)
 
     top_questions = await question_service.get_n_top_questions(5)
     questions_count = await question_service.get_questions_count()
@@ -343,20 +343,21 @@ async def logout():
 
 
 """TEST"""
-
+import random
 
 @router.get("/login/")
 async def login(user_service: UserService = Depends(get_user_service)):
+    uid = str(random.randint(1, 100000))
     response = RedirectResponse("/")
     response.set_cookie(
         key=jwt_processing.config.JWT_ACCESS_COOKIE_NAME,
-        value=jwt_processing.create_access_jwt(user_id="7234443454297302"),
+        value=jwt_processing.create_access_jwt(user_id=uid),
         expires=datetime.now(timezone.utc) + timedelta(days=100),
         httponly=True,
         secure=False,
         samesite="lax",
     )
-    await user_service.add_user("7234443454297302", "sdf")
+    await user_service.add_user(uid, f"user_{uid[:4]}")
     return response
 
 

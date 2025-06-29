@@ -26,14 +26,14 @@ class QuestionsRepository:
         await self.session.flush()
         return question
 
-    async def get_n_questions_without_answer_with_offset(
+    async def get_n_current_questions_with_offset(
         self, limit: int, offset: int
     ) -> list[Question]:
         questions = await self.session.execute(
             select(Question)
-            .where(Question.without_answer == True)
             .limit(limit)
             .offset(offset)
+            .order_by(Question.answers_id.desc())
         )
         questions = questions.scalars().all()
         return questions

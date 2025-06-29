@@ -1,4 +1,3 @@
-<!-- templates/profile.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -51,12 +50,96 @@
 
     <!-- Main Content -->
     <main class="flex-grow container mx-auto max-w-7xl px-4 pt-24 pb-12">
-        <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Mobile layout - content first -->
+        <div class="lg:hidden">
+            <!-- Main content -->
+            <div class="w-full">
+                {% if profile_user %}
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <h2 class="text-2xl font-bold text-gray-800 truncate max-w-xs sm:max-w-sm md:max-w-md">
+                                {{ profile_user.username }}
+                            </h2>
+
+                            {% if profile_user.telegram_id == user.telegram_id %}
+                            <form action="/change/name" method="POST" class="w-full sm:w-auto">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <input type="text" name="new_name" placeholder="Новое имя" required maxlength="20"
+                                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full truncate">
+
+                                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition whitespace-nowrap">
+                                        Изменить имя
+                                    </button>
+                                </div>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- User questions -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Заданные вопросы ({{ user_questions_count }})</h3>
+                        {% if user_questions %}
+                            <div class="horizontal-scroll">
+                                {% for q in user_questions %}
+                                    {% if not q.anonymous or (user and user.telegram_id == profile_user.telegram_id) %}
+                                        <a href="/question/{{ q.question_id }}" class="flex-shrink-0 w-64 bg-white rounded-xl shadow-sm p-4 mr-4 hover:shadow-md transition">
+                                            <h4 class="font-semibold text-gray-800 truncate">{{ q.title }}</h4>
+                                            <p class="text-gray-600 text-sm mt-1 line-clamp-2">{{ q.content }}</p>
+                                            <div class="mt-2 text-xs text-gray-500">
+                                                {% if q.anonymous %}Аноним{% else %}Автор{% endif %}
+                                            </div>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-500">Пользователь пока не задал ни одного вопроса.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- User answers -->
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Данные ответы ({{ answers_count }})</h3>
+                        {% if user_answers %}
+                            <div class="horizontal-scroll">
+                                {% for a in user_answers %}
+                                    {% if not a.anonymous or (user and user.telegram_id == profile_user.telegram_id) %}
+                                        <a href="/question/{{ a.question_id }}" class="flex-shrink-0 w-64 bg-white rounded-xl shadow-sm p-4 mr-4 hover:shadow-md transition">
+                                            <h4 class="font-semibold text-gray-800 truncate">Ответ на #{{ a.question_id }}</h4>
+                                            <p class="text-gray-600 text-sm mt-1 line-clamp-3">{{ a.content }}</p>
+                                            <div class="mt-2 text-xs text-gray-500">
+                                                {% if a.anonymous %}Анонимный ответ{% else %}Автор{% endif %}
+                                            </div>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-500">Пользователь пока не дал ни одного ответа.</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 text-center">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Профиль не найден</h2>
+                        <p class="text-gray-600 mb-6">Пользователь с таким ID не найден.</p>
+                        <a href="/" class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                            Вернуться на главную
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
             
-            <!-- Left Sidebar - Top Questions -->
+            <!-- Top questions sidebar (mobile) -->
+            {% include "partials/top_questions.html" %}
+        </div>
+
+        <!-- Desktop layout - normal flex -->
+        <div class="hidden lg:flex flex-col lg:flex-row gap-8">
+            <!-- Left sidebar -->
             {% include "partials/top_questions.html" %}
             
-            <!-- Main Content - Profile -->
+            <!-- Main content -->
             <div class="lg:w-2/4">
                 {% if profile_user %}
                     <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
@@ -80,7 +163,7 @@
                         </div>
                     </div>
                     
-                    <!-- Вопросы пользователя -->
+                    <!-- User questions -->
                     <div class="mb-8">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Заданные вопросы ({{ user_questions_count }})</h3>
                         {% if user_questions %}
@@ -102,7 +185,7 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Ответы пользователя -->
+                    <!-- User answers -->
                     <div>
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Данные ответы ({{ answers_count }})</h3>
                         {% if user_answers %}
@@ -134,7 +217,7 @@
                 {% endif %}
             </div>
 
-            <!-- Right Sidebar - Statistics -->
+            <!-- Right sidebar -->
             {% include "partials/stats_sidebar.html" %}
         </div>
     </main>
