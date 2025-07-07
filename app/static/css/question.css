@@ -14,8 +14,29 @@ body {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 .gradient-text {
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6); 
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+}
+.line-clamp-5 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
+}
+.expanded {
+    white-space: pre-wrap;
+    overflow: visible;
+    height: auto;
+}
+button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+button svg {
+    transition: all 0.2s ease;
+}
+button:hover svg {
+    transform: scale(1.1);
 }

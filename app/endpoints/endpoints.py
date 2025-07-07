@@ -109,8 +109,6 @@ async def profile(
         },
     )
 
-    print(type(current_user_id), type(user_id))
-
     return response
 
 

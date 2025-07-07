@@ -1,17 +1,10 @@
 body {
     font-family: 'Inter', sans-serif;
-    background-color:rgb(245, 245, 245); 
+    background-color:rgb(245, 245, 245);
 }
 .header-glass {
     backdrop-filter: blur(10px);
     background-color: rgba(255, 255, 255, 0.85);
-}
-.question-card {
-    transition: all 0.3s ease;
-}
-.question-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 .gradient-text {
     background: linear-gradient(90deg, #3b82f6, #8b5cf6);

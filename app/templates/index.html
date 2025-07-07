@@ -7,29 +7,7 @@
     <title>Cleverly - Q&A Platform</title>
     <script src="https://cdn.tailwindcss.com"></script> 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color:rgb(245, 245, 245); 
-        }
-        .header-glass {
-            backdrop-filter: blur(10px);
-            background-color: rgba(255, 255, 255, 0.85);
-        }
-        .question-card {
-            transition: all 0.3s ease;
-        }
-        .question-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        .gradient-text {
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
 </head>
 <body class="min-h-screen flex flex-col pb-24 pt-5">
 
@@ -126,11 +104,5 @@
 
     <!-- Footer -->
     {% include "partials/footer.html" %}
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Cleverly Q&A platform loaded');
-        });
-    </script>
 </body>
 </html>
