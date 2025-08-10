@@ -20,3 +20,6 @@ class TagsService:
         if not tag:
             await self.tags_repo.add_tag(tag_name)
         await self.session.commit()
+    
+    async def get_all_tags(self):
+        return await self.tags_repo.get_all_tags()

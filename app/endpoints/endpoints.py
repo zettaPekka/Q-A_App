@@ -225,6 +225,9 @@ async def rules(
     top_questions = await question_service.get_n_top_questions(5)
     questions_count = await question_service.get_questions_count()
     top_tags = await tags_service.get_n_top_tags(7)
+    
+    users_count = len(await user_service.get_all_users())
+    tags_count = len(await tags_service.get_all_tags())
 
     response = templates.TemplateResponse(
         "about.html",
@@ -235,6 +238,8 @@ async def rules(
             "top_tags": top_tags,
             "questions_count": questions_count,
             "bot_username": bot_username,
+            'users_count':users_count,
+            'tags_count':tags_count
         },
     )
     return response

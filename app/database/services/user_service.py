@@ -40,3 +40,6 @@ class UserService:
         if not private:
             return await self.user_repo.get_public_user_answers(user_id)
         return await self.user_repo.get_user_answers(user_id)
+
+    async def get_all_users(self):
+        return await self.user_repo.get_all_users()

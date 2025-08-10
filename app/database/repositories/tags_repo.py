@@ -29,3 +29,8 @@ class TagsRepo:
                 tag = await self.get_tag(tag)
                 tag.questions_id.append(question_id)
                 flag_modified(tag, "questions_id")
+    
+    async def get_all_tags(self):
+        tags = await self.session.execute(select(Tag))
+        tags = tags.scalars().all()
+        return tags

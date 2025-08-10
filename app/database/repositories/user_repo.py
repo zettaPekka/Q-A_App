@@ -61,3 +61,8 @@ class UserRepository:
         )
         answers = answers.scalars().all()
         return answers
+
+    async def get_all_users(self):
+        users = await self.session.execute(select(User))
+        users = users.scalars().all()
+        return users     
