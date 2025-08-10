@@ -22,9 +22,7 @@ class AnswerService:
         answer = await self.answer_repo.get_answer(answer_id)
         if user_id in answer.likes:
             await self.answer_repo.unlike_answer(answer_id, user_id)
-            print("unlike")
             return {"action": "unliked"}
         else:
             await self.answer_repo.like_answer(answer_id, user_id)
-            print("like")
             return {"action": "liked"}
