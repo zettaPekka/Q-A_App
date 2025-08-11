@@ -101,20 +101,28 @@
                         {% endif %}
 
                         <!-- Кнопка "Вперёд" -->
-                        {% if tag_filter %}
-                            <a href="/tag/{{ tag_name }}/?page={{ page + 1 }}" 
-                            class="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </a>
+                        {% if questions|length >= 8 %}
+                            {% if tag_filter %}
+                                <a href="/tag/{{ tag_name }}/?page={{ page + 1 }}" 
+                                class="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            {% else %}
+                                <a href="/?page={{ page + 1 }}" 
+                                class="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            {% endif %}
                         {% else %}
-                            <a href="/?page={{ page + 1 }}" 
-                            class="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                            <span class="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
-                            </a>
+                            </span>
                         {% endif %}
                     </nav>
                 </div>
