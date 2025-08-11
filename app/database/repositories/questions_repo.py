@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, text
-from sqlalchemy.orm import joinedload
+from sqlalchemy import select, func, text, or_
 
-from app.database.models import Question, Tag
+from app.database.models import Question
 
 
 class QuestionsRepository:
@@ -55,11 +54,27 @@ class QuestionsRepository:
     async def get_questions_count(self) -> int:
         questions = await self.get_all_questions()
         return len(questions)
-    
-    async def get_n_questions_by_tag_by_page(self, n: int, tag: str, offset: int) -> list[Question]:
-        result = await self.session.execute(
-            select(Question).where(
+
+    async def get_n_questions_by_tag_by_page(
+        self, n: int, tag: str, offset: int
+    ) -> list[Question]:
+        questions = await self.session.execute(
+            select(Question)
+            .where(
                 text("EXISTS (SELECT 1 FROM json_each(tags) WHERE value LIKE :pattern)")
-            ).params(pattern=f'%{tag}%').limit(n).offset(offset)
+            )
+            .params(pattern=f"%{tag}%")
+            .limit(n)
+            .offset(offset)
         )
+        return questions.scalars().all()
+
+    async def get_questions_by_search(self, search_text: str):
+        query = select(Question).where(
+            or_(
+                Question.title.ilike(f"%{search_text}%"),
+                Question.content.ilike(f"%{search_text}%"),
+            )
+        )
+        result = await self.session.execute(query)
         return result.scalars().all()

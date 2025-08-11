@@ -1,18 +1,10 @@
-from datetime import datetime, timedelta, timezone
 import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Request, Response, Query, Depends, Form, Body
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-import app.auth.jwt_processing as jwt_processing
-from app.schemas.question_schema import QuestionSchema
-from app.schemas.auth_schema import TelegramAuthData
-from app.schemas.answer_schema import AnswerSchema
-from app.schemas.like_schema import LikeSchema
-from app.auth.hashing import verify_telegram_hash
 from app.database.services.user_service import UserService
-from app.database.services.answer_service import AnswerService
 from app.database.services.questions_service import QuestionsService
 from app.database.services.tags_service import TagsService
 from app.dependencies.dependencies import (
@@ -20,7 +12,6 @@ from app.dependencies.dependencies import (
     get_questions_service,
     get_current_user_id,
     get_tags_service,
-    get_answer_service,
 )
 
 
@@ -223,7 +214,7 @@ async def rules(
     top_questions = await question_service.get_n_top_questions(5)
     questions_count = await question_service.get_questions_count()
     top_tags = await tags_service.get_n_top_tags(7)
-    
+
     users_count = len(await user_service.get_all_users())
     tags_count = len(await tags_service.get_all_tags())
 
@@ -236,14 +227,14 @@ async def rules(
             "top_tags": top_tags,
             "questions_count": questions_count,
             "bot_username": bot_username,
-            'users_count':users_count,
-            'tags_count':tags_count
+            "users_count": users_count,
+            "tags_count": tags_count,
         },
     )
     return response
 
 
-@router.get('/tag/{tag_name}/')
+@router.get("/tag/{tag_name}/")
 async def questions_by_tag(
     request: Request,
     tag_name: str,
@@ -278,8 +269,8 @@ async def questions_by_tag(
             "questions_count": questions_count,
             "page": page,
             "bot_username": bot_username,
-            'tag_filter': True,
-            'tag_name':tag_name
+            "tag_filter": True,
+            "tag_name": tag_name,
         },
     )
 

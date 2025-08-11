@@ -1,27 +1,14 @@
 from datetime import datetime, timedelta, timezone
-import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Request, Response, Query, Depends, Form, Body
+from fastapi import APIRouter, Response, Query, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 import app.auth.jwt_processing as jwt_processing
-from app.schemas.question_schema import QuestionSchema
 from app.schemas.auth_schema import TelegramAuthData
-from app.schemas.answer_schema import AnswerSchema
-from app.schemas.like_schema import LikeSchema
 from app.auth.hashing import verify_telegram_hash
 from app.database.services.user_service import UserService
-from app.database.services.answer_service import AnswerService
-from app.database.services.questions_service import QuestionsService
-from app.database.services.tags_service import TagsService
-from app.dependencies.dependencies import (
-    get_user_service,
-    get_questions_service,
-    get_current_user_id,
-    get_tags_service,
-    get_answer_service,
-)
+from app.dependencies.dependencies import get_user_service, get_current_user_id
 
 
 load_dotenv()
@@ -66,6 +53,7 @@ async def logout():
 
 """TEST"""
 import random
+
 
 @router.get("/login/")
 async def login(user_service: UserService = Depends(get_user_service)):

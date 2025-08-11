@@ -65,4 +65,4 @@ class UserRepository:
     async def get_all_users(self):
         users = await self.session.execute(select(User))
         users = users.scalars().all()
-        return users     
+        return users

@@ -48,14 +48,10 @@ class QuestionsService:
         await self.session.commit()
         return question
 
-    async def get_n_current_questions_by_page(
-        self, limit: int, page
-    ) -> list[Question]:
+    async def get_n_current_questions_by_page(self, limit: int, page) -> list[Question]:
         offset = (page - 1) * limit
-        questions = (
-            await self.questions_repo.get_n_current_questions_with_offset(
-                limit, offset
-            )
+        questions = await self.questions_repo.get_n_current_questions_with_offset(
+            limit, offset
         )
         return questions
 
@@ -86,3 +82,6 @@ class QuestionsService:
     async def get_n_questions_by_tag_by_page(self, n: int, tag: str, page: int):
         offset = (page - 1) * n
         return await self.questions_repo.get_n_questions_by_tag_by_page(n, tag, offset)
+
+    async def get_questions_by_search(self, text: str):
+        return await self.questions_repo.get_questions_by_search(text)
