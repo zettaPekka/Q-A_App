@@ -10,7 +10,8 @@ class UserService:
         self.session = session
 
     async def get_user(self, telegram_id: int) -> User | None:
-        return await self.user_repo.get(telegram_id)
+        if telegram_id:
+            return await self.user_repo.get(telegram_id)
 
     async def add_user(self, telegram_id: int, username: str) -> None:
         user = await self.get_user(telegram_id)
