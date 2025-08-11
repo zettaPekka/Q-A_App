@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm.attributes import flag_modified
 
 from app.database.models import Tag
@@ -14,7 +14,9 @@ class TagsRepo:
 
     async def get_n_top_tags(self, n: int) -> list[Tag]:
         tags = await self.session.execute(
-            select(Tag).order_by(Tag.questions_id.desc()).limit(n)
+            select(Tag)
+            .order_by(func.json_array_length(Tag.questions_id).desc())
+            .limit(n)
         )
         tags = tags.scalars().all()
         return tags
