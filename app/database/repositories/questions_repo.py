@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from sqlalchemy.orm import joinedload
 
 from app.database.models import Question, Tag
@@ -55,3 +55,11 @@ class QuestionsRepository:
     async def get_questions_count(self) -> int:
         questions = await self.get_all_questions()
         return len(questions)
+    
+    async def get_n_questions_by_tag_by_page(self, n: int, tag: str, offset: int) -> list[Question]:
+        result = await self.session.execute(
+            select(Question).where(
+                text("EXISTS (SELECT 1 FROM json_each(tags) WHERE value LIKE :pattern)")
+            ).params(pattern=f'%{tag}%').limit(n).offset(offset)
+        )
+        return result.scalars().all()

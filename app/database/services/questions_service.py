@@ -82,3 +82,7 @@ class QuestionsService:
 
     async def get_answers(self, question_id: int):
         return await self.answer_repo.get_answers(question_id)
+
+    async def get_n_questions_by_tag_by_page(self, n: int, tag: str, page: int):
+        offset = (page - 1) * n
+        return await self.questions_repo.get_n_questions_by_tag_by_page(n, tag, offset)

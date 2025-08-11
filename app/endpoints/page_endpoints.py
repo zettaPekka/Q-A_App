@@ -245,17 +245,43 @@ async def rules(
 
 @router.get('/tag/{tag_name}/')
 async def questions_by_tag(
+    request: Request,
     tag_name: str,
     user_id: int | None = Depends(get_current_user_id),
     user_service: UserService = Depends(get_user_service),
     question_service: QuestionsService = Depends(get_questions_service),
     tags_service: TagsService = Depends(get_tags_service),
 ):
-    user = await user_service.get_user(user_id)
+    query_params = request.query_params
+    try:
+        page = int(query_params.get("page", 1))
+        page = max(page, 1)
+    except ValueError:
+        page = 1
+
+    questions = await question_service.get_n_questions_by_tag_by_page(8, tag_name, page)
 
     top_questions = await question_service.get_n_top_questions(5)
     questions_count = await question_service.get_questions_count()
     top_tags = await tags_service.get_n_top_tags(7)
+
+    user = await user_service.get_user(user_id)
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "user": user,
+            "questions": questions,
+            "top_questions": top_questions,
+            "top_tags": top_tags,
+            "questions_count": questions_count,
+            "page": page,
+            "bot_username": bot_username,
+            'tag_filter': True,
+            'tag_name':tag_name
+        },
+    )
 
 
 @router.get("/{path:path}/")
