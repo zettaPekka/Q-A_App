@@ -5,7 +5,9 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-from app.endpoints.endpoints import router
+from app.endpoints.post_endpoints import router as post_endpoint
+from app.endpoints.page_endpoints import router as page_router
+from app.endpoints.auth_endpoints import router as auth_endpoint
 from app.database.init_database import init_db
 
 
@@ -22,7 +24,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)  # TODO: openapi_url=None docs_url=none redoc_url=none
 app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
-app.include_router(router)
+app.include_router(post_endpoint)
+app.include_router(auth_endpoint)
+app.include_router(page_router)
 
 
 if __name__ == "__main__":

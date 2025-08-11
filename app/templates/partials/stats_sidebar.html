@@ -4,7 +4,7 @@
         <h2 class="text-xl font-bold text-gray-800 mb-4">Популярные теги</h2>
         <div class="flex flex-wrap gap-2">
             {% for tag in top_tags %}
-            <a href="#" class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm hover:bg-indigo-100 hover:text-indigo-600 transition">{{ tag.tag_name }}</a>
+            <a href="/tag/{{ tag.tag_name }}" class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm hover:bg-indigo-100 hover:text-indigo-600 transition">{{ tag.tag_name }}</a>
             {% endfor %}
         </div>
         <div class="mt-8">

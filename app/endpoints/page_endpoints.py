@@ -27,9 +27,7 @@ from app.dependencies.dependencies import (
 load_dotenv()
 
 router = APIRouter()
-
 templates = Jinja2Templates(directory="app/templates")
-
 bot_username = os.getenv("BOT_USERNAME")
 
 
@@ -245,123 +243,19 @@ async def rules(
     return response
 
 
-@router.post("/question/")
-async def question(
-    question: QuestionSchema = Form(),
+@router.get('/tag/{tag_name}/')
+async def questions_by_tag(
+    tag_name: str,
+    user_id: int | None = Depends(get_current_user_id),
+    user_service: UserService = Depends(get_user_service),
     question_service: QuestionsService = Depends(get_questions_service),
-    user_service: UserService = Depends(get_user_service),
-    user_id: int = Depends(get_current_user_id),
+    tags_service: TagsService = Depends(get_tags_service),
 ):
-    if not user_id:
-        return Response(status_code=401)
+    user = await user_service.get_user(user_id)
 
-    added_question = await question_service.add_question(
-        question.title, question.content, user_id, question.tags, question.anonymous
-    )
-    await user_service.add_question_id(user_id, added_question.question_id)
-
-    return RedirectResponse(f"/question/{added_question.question_id}/", status_code=303)
-
-
-@router.post("/question/{question_id}/answer")
-async def answer_question(
-    question_id: int,
-    answer_data: AnswerSchema = Form(),
-    question_service: QuestionsService = Depends(get_questions_service),
-    user_id: int = Depends(get_current_user_id),
-):
-    if not user_id:
-        return Response(status_code=401)
-
-    response = RedirectResponse(f"/question/{question_id}/", status_code=303)
-
-    if answer_data.content.strip() == "":
-        return response
-
-    await question_service.answer_question(
-        answer_data.content, question_id, user_id, answer_data.anonymous
-    )
-
-    return response
-
-
-@router.post("/change/name/")
-async def change_name(
-    new_name: str = Form(max_length=20),
-    user_id: int = Depends(get_current_user_id),
-    user_service: UserService = Depends(get_user_service),
-):
-    if not user_id:
-        return Response(status_code=401)
-
-    await user_service.change_name(user_id, new_name)
-    return RedirectResponse(f"/profile/{user_id}/", status_code=303)
-
-
-@router.post("/answer/like/")
-async def like_question(
-    like_data: LikeSchema = Body(),
-    user_id: int = Depends(get_current_user_id),
-    answer_service: AnswerService = Depends(get_answer_service),
-):
-    if not user_id:
-        return Response(status_code=401)
-
-    action = await answer_service.action_answer(like_data.answer_id, user_id)
-    return action
-
-
-@router.get("/auth/telegram/")
-async def auth_telegram(
-    telegram_data: TelegramAuthData = Query(),
-    user_service: UserService = Depends(get_user_service),
-    user_id: int = Depends(get_current_user_id),
-):
-    if user_id:
-        return Response(status_code=400)
-
-    is_valid = verify_telegram_hash(received_data=telegram_data.model_dump())
-    if not is_valid:
-        return Response(status_code=400)
-
-    await user_service.add_user(telegram_data.id, telegram_data.first_name)
-
-    response = RedirectResponse("/")
-    response.set_cookie(
-        key=jwt_processing.config.JWT_ACCESS_COOKIE_NAME,
-        value=jwt_processing.create_access_jwt(user_id=str(telegram_data.id)),
-        expires=datetime.now(timezone.utc) + timedelta(days=30),
-        httponly=True,
-        secure=False,  # TODO: change to True in production
-        samesite="lax",
-    )
-    return response
-
-
-@router.get("/logout/")
-async def logout():
-    response = RedirectResponse("/")
-    response.delete_cookie(jwt_processing.config.JWT_ACCESS_COOKIE_NAME)
-    return response
-
-
-"""TEST"""
-import random
-
-@router.get("/login/")
-async def login(user_service: UserService = Depends(get_user_service)):
-    uid = str(random.randint(1, 100000))
-    response = RedirectResponse("/")
-    response.set_cookie(
-        key=jwt_processing.config.JWT_ACCESS_COOKIE_NAME,
-        value=jwt_processing.create_access_jwt(user_id=uid),
-        expires=datetime.now(timezone.utc) + timedelta(days=100),
-        httponly=True,
-        secure=False,
-        samesite="lax",
-    )
-    await user_service.add_user(uid, f"user_{uid[:4]}")
-    return response
+    top_questions = await question_service.get_n_top_questions(5)
+    questions_count = await question_service.get_questions_count()
+    top_tags = await tags_service.get_n_top_tags(7)
 
 
 @router.get("/{path:path}/")
